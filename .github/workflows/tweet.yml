@@ -1,0 +1,46 @@
+name: Mystic Tweet Bot
+
+on:
+  schedule:
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  post-tweet:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Post next tweet
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+        run: python bot.py
+
+      - name: Save updated tweet status
+        run: |
+          if git diff --quiet; then
+            echo "No spreadsheet changes to save."
+            exit 0
+          fi
+
+          git config user.name "MysticTweetBot"
+          git config user.email "actions@github.com"
+          git add tweets.csv
+          git commit -m "Mark tweet as posted"
+          git push
