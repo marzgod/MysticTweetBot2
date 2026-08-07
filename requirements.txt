@@ -1,3 +1,1 @@
-tweepy
-gspread
-google-auth
+tweepy==4.16.0
