@@ -9,6 +9,11 @@ client = tweepy.Client(
     wait_on_rate_limit=True,
 )
 
+def verify_auth():
+    me = client.get_me(user_auth=True)
+    print("Authenticated as:", me.data)
+
 def post_tweet(text):
-    response = client.create_tweet(text=text)
+    verify_auth()
+    response = client.create_tweet(text=text, user_auth=True)
     print(response)
